@@ -1,36 +1,23 @@
-const path = require('path');
-const glob = require('fast-glob');
 
-interface IOptions {
-  include: string[];
-  exclude: string[];
-  globOptions: any;
-}
-interface ICompiler {
-  hooks: {
-    afterEmit: {
-      tapAsync: (name: string, callback: Function) => void;
-    }
-  };
-  plugin: (
-    eventName: 'after-emit',
-    callback: (compilation: ICompilation, doneFn: Function) => void
-  ) => void;
-}
-interface ICompilation {
-  fileDependencies: any;
-  assets: any;
-}
+import type {
+  IOptions,
+  ICompiler,
+  ICompilation,
+} from './types';
+import path from 'path';
+import glob from 'fast-glob';
 
 /**
  * 获取文件依赖关系map
  * @param compilation 
  */
-function getFileDepsMap (compilation: ICompilation) {
-  const resMap = Array.from(compilation.fileDependencies).reduce((total: Map<string, boolean>, usedFilePath) => {
-    total.set(usedFilePath as string, true);
-    return total;
-  }, new Map());
+function getFileDepsMap(compilation: ICompilation) {
+
+  const resMap = Array.from(compilation.fileDependencies)
+    .reduce((total: Map<string, boolean>, usedFilePath) => {
+      total.set(usedFilePath as string, true);
+      return total;
+    }, new Map());
 
   const { assets } = compilation;
   Object.keys(assets).forEach(assetRelpath => {
@@ -45,14 +32,14 @@ function getFileDepsMap (compilation: ICompilation) {
  * 获取指定目录下的所有指定文件
  * @param options 
  */
-function getIncludeFiles (options: IOptions) {
+function getIncludeFiles(options: IOptions) {
   const { include, exclude } = options;
   const fileList = include.concat(exclude.map((item: string) => `!${item}`));
   return glob.sync(fileList, options.globOptions)
-             .map((filePath: string) => path.resolve(process.cwd(), filePath));
+    .map((filePath: string) => path.resolve(process.cwd(), filePath));
 }
 
-function applyAfterEmit (options: IOptions, compilation: ICompilation) {
+function applyAfterEmit(options: IOptions, compilation: ICompilation) {
   const usedFileDeps = getFileDepsMap(compilation);
   const includeFiles = getIncludeFiles(options);
 
@@ -71,16 +58,16 @@ function applyAfterEmit (options: IOptions, compilation: ICompilation) {
 class SxfDeadfilePlugin {
   options: IOptions;
 
-  constructor (options: IOptions) {
+  constructor(options: IOptions) {
     this.options = {
       ...options,
       include: options.include || ['src/**/*'],
       exclude: ['node_modules/**/*'].concat(options.exclude),
-      globOptions: options.globOptions || {}
+      globOptions: options.globOptions,
     };
   }
 
-  apply (compiler: ICompiler) {
+  apply(compiler: ICompiler) {
 
     // webpack 4
     if (compiler.hooks) {
@@ -92,7 +79,7 @@ class SxfDeadfilePlugin {
     }
   }
 
-  onAfterEmit (options: IOptions, compilation: ICompilation, doneFn: Function) {
+  onAfterEmit(options: IOptions, compilation: ICompilation, doneFn: Function) {
     applyAfterEmit(options, compilation);
     doneFn();
   }
