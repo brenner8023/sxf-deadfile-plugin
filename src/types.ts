@@ -1,9 +1,9 @@
 import FastGlob from 'fast-glob';
 
 export interface IOptions {
-  include: string[];
-  exclude: string[];
-  globOptions: FastGlob.Options;
+  include?: string[];
+  exclude?: string[];
+  globOptions?: FastGlob.Options;
 }
 
 export interface ICompiler {
