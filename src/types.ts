@@ -1,8 +1,17 @@
 import FastGlob from 'fast-glob';
 
 export interface IOptions {
+
+  // @default ['src/**/*']
   include?: string[];
+
+  // @default ['node_modules/**/*']
   exclude?: string[];
+
+  /**
+   * @default false
+   */
+  delete?: boolean;
   globOptions?: FastGlob.Options;
 }
 

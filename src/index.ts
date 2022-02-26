@@ -6,6 +6,7 @@ import type {
 } from './types';
 import path from 'path';
 import glob from 'fast-glob';
+import fs from 'fs';
 
 export default class SxfDeadfilePlugin {
   private options: IOptions;
@@ -75,6 +76,10 @@ function applyAfterEmit(options: IOptions, compilation: ICompilation) {
 
   const deadFiles = includeFiles.filter(file => !usedFileDeps.has(file));
 
+  if (options.delete) {
+    removeFiles(deadFiles);
+  }
+
   console.log('\n--------------------- Unused Files ---------------------');
   if (!deadFiles.length) {
     console.log('\x1B[32m%s\x1B[0m', '\nPerfect, there is nothing to do ٩(◕‿◕｡)۶.');
@@ -83,4 +88,15 @@ function applyAfterEmit(options: IOptions, compilation: ICompilation) {
   deadFiles.forEach(file => console.log('\x1B[33m%s\x1B[0m', `\n${file}`));
   console.log('\x1B[33m%s\x1B[0m', `\nThere are ${deadFiles.length} unused files (¬º-°)¬.`);
   console.log('\x1B[31m%s\x1B[0m', '\n\nPlease be careful if you want to remove them.\n');
+}
+
+function removeFiles(deadFiles: string[]) {
+  deadFiles.forEach(file => {
+    fs.unlink(file, (err) => {
+      if (err) {
+        console.log(`${file}: delete failed.`);
+        throw err;
+      }
+    });
+  });
 }

@@ -7,7 +7,7 @@
 `webpack.prod.config.js`：
 
 ```js
-const SxfDeadfilePlugin = require("./dist/index.js");
+const SxfDeadfilePlugin = require("./dist/index.js").default;
 
 module.exports = {
   mode: "production",
@@ -18,7 +18,7 @@ module.exports = {
   },
   plugins: [
     new SxfDeadfilePlugin({
-      include: ["src/home/**/*.(js|ts|vue)", "src/style/**/*"],
+      include: ["src/components/**/*.(js|ts|vue)", "src/style/**/*"],
       exclude: ["node_modules/**/*"],
     }),
   ],
